@@ -4,3 +4,4 @@
 printer-*_*.cfg
 # no backups
 .*.bkp
+*.bak.cfg
