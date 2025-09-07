@@ -6,6 +6,6 @@ then
     exit 42
 fi
 echo "Retrieving running configurations from ${PRINTERIP}..."
-rsync -avx --stats linaro@${PRINTERIP}:/home/mks/printer_data/config/ config
+rsync -avxL --stats linaro@${PRINTERIP}:/home/mks/printer_data/config/ config
 echo "Retrieving factory configuration from ${PRINTERIP}..."
-rsync -avx --stats linaro@${PRINTERIP}:/home/mks/ws/doc/ factory/
+rsync -avxL --stats linaro@${PRINTERIP}:/home/mks/ws/doc/ factory/
