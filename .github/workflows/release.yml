@@ -36,7 +36,7 @@ jobs:
           mkdir -p release
           cp -r config release/ 2>/dev/null || true
           cp deploy.sh release/
-          echo "${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}" > release/.version
+          echo "${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}" > release/config/.version
           zip -r release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip release/
 
       - name: Create Release
