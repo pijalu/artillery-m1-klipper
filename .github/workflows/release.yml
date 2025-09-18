@@ -1,0 +1,57 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - release/**
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Determine release type
+        id: release-type
+        run: |
+          branch_name=${GITHUB_REF#refs/heads/}
+          if [[ $branch_name == "release/stable"* ]]; then
+            echo "type=stable" >> $GITHUB_OUTPUT
+          elif [[ $branch_name == "release/testing"* ]]; then
+            echo "type=testing" >> $GITHUB_OUTPUT
+          else
+            echo "type=nightly" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create timestamp
+        id: timestamp
+        run: echo "time=$(date +%Y%m%d_%H%M%S)" >> $GITHUB_OUTPUT
+
+      - name: Create release zip
+        run: |
+          mkdir -p release
+          cp config/*.{cfg,conf,txt} release/ 2>/dev/null || true
+          cp deploy.sh release/
+          zip -r release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip release/
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}
+          release_name: Release ${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}
+          draft: false
+          prerelease: ${{ steps.release-type.outputs.type != 'stable' }}
+          
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip
+          asset_name: release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip
+          asset_content_type: application/zip
