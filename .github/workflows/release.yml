@@ -31,7 +31,7 @@ jobs:
       - name: Create release zip
         run: |
           mkdir -p release
-          cp config/*.{cfg,conf,txt} release/ 2>/dev/null || true
+          cp -r config release/ 2>/dev/null || true
           cp deploy.sh release/
           zip -r release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip release/
 
