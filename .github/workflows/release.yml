@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - release/**
+  workflow_dispatch:
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,7 +34,7 @@ jobs:
       - name: Create release zip
         run: |
           mkdir -p release
-          cp config/*.{cfg,conf,txt} release/ 2>/dev/null || true
+          cp -r config release/ 2>/dev/null || true
           cp deploy.sh release/
           zip -r release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip release/
 
