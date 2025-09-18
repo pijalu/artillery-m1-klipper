@@ -9,6 +9,8 @@ This repository contains a set of community‑developed configuration files for 
 * config/ – the running configuration file that includes custom parameters, macros, and common G‑code snippets.
 
 sync.sh – a small helper script to pull the latest firmware / settings from your remote printer IP address.
+deploy.sh – a script to deploy configuration files to your printer directory.
+download_release.sh – a script to download the latest release (nightly/testing/stable) from GitHub.
 
 ## Branches
 - artillery: contains Artillery provided configuration
@@ -16,6 +18,19 @@ sync.sh – a small helper script to pull the latest firmware / settings from yo
 
 ## Tags
 - artillery-xx.xx.xx.xx: tags Artillery provided configuration linked to firmware
+
+## Downloading Releases
+You can download the latest releases using the `download_release.sh` script:
+```bash
+# Download the latest nightly release
+./download_release.sh nightly
+
+# Download the latest testing release
+./download_release.sh testing
+
+# Download the latest stable release
+./download_release.sh stable
+```
 
 ## Disclaimer 
 The files are community configurations: they come from the open‑source community, do not come with any guaranteed support, but have been tested on the Artillery M1 Pro and should work as-is after a quick sanity check.
