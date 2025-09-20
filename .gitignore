@@ -1,1 +1,9 @@
+*.zip
+
+# No printer cfg change
+printer-*_*.cfg
+# no backups
+.*.bkp
+*.bak.cfg
 .DS_Store
+variables.cfg
