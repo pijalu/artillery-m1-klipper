@@ -7,3 +7,5 @@ printer-*_*.cfg
 *.bak.cfg
 .DS_Store
 variables.cfg
+config/.gitignore
+config/.version
