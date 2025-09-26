@@ -1,10 +1,18 @@
-# validate_bed_mesh.py
+# Validate Bed Mesh Leveling
 #
-# Safe Klipper extension to expose bed mesh interpolation to GCode macros.
-# Usage in macros:
-#   VALIDATE_BED_MESH_GET X=<x> Y=<y>
-#   → stores interpolated Z in printer.validate_bed_mesh.last_mesh_z
-#   → probes the point and stores measured Z in printer.validate_bed_mesh.last_probe_z
+# Copyright (C) 2025 Pierre Poissinger <pierre.poissinger@gmail.com>
+#
+# This file may be distributed under the terms of the GNU GPLv3 license.
+#
+# VALIDATE_BED_MESH 
+#   Probe 4 bed corner + center against loaded bed mesh - if deviation exceeds MAX_DEVIATION, remesh
+#   Optionally save config if remeshing
+#
+#  VALIDATE_BED_MESH_AT X=<x> Y=<y>
+#   Get interpolated Z from bed mesh at XY, probe the point and report deviation
+#   printer.validate_bed_mesh.last_mesh_z: interpolated Z from mesh
+#   printer.validate_bed_mesh.last_probed_z: probed Z at XY
+#   printer.validate_bed_mesh.last_deviation: deviation between mesh and probed Z
 
 class ValidateBedMesh:
     def __init__(self, config):
