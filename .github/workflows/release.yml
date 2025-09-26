@@ -37,8 +37,6 @@ jobs:
           cp -r config release/ 2>/dev/null || true
           cp -r extras release/ 2>/dev/null || true
           echo "${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}" > release/version
-          cp release/version config/.version 2>/dev/null || true
-          cp release/version extras/.version 2>/dev/null || true
           zip -r release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip release/
 
       - name: Create Release
