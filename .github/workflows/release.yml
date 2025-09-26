@@ -20,9 +20,29 @@ jobs:
         run: |
           branch_name=${GITHUB_REF#refs/heads/}
           if [[ $branch_name == "release/stable"* ]]; then
-            echo "type=stable" >> $GITHUB_OUTPUT
+            # Extract flavor if present (e.g., release/stable/dan -> stable-dan)
+            if [[ $branch_name =~ ^release/stable/([^/]+)$ ]]; then
+              flavor=${BASH_REMATCH[1]}
+              echo "type=stable-$flavor" >> $GITHUB_OUTPUT
+            else
+              echo "type=stable" >> $GITHUB_OUTPUT
+            fi
           elif [[ $branch_name == "release/testing"* ]]; then
-            echo "type=testing" >> $GITHUB_OUTPUT
+            # Extract flavor if present (e.g., release/testing/dan -> testing-dan)
+            if [[ $branch_name =~ ^release/testing/([^/]+)$ ]]; then
+              flavor=${BASH_REMATCH[1]}
+              echo "type=testing-$flavor" >> $GITHUB_OUTPUT
+            else
+              echo "type=testing" >> $GITHUB_OUTPUT
+            fi
+          elif [[ $branch_name == "release/nightly"* ]]; then
+            # Extract flavor if present (e.g., release/nightly/dan -> nightly-dan)
+            if [[ $branch_name =~ ^release/nightly/([^/]+)$ ]]; then
+              flavor=${BASH_REMATCH[1]}
+              echo "type=nightly-$flavor" >> $GITHUB_OUTPUT
+            else
+              echo "type=nightly" >> $GITHUB_OUTPUT
+            fi
           else
             echo "type=nightly" >> $GITHUB_OUTPUT
           fi
