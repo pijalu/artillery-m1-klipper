@@ -34,8 +34,8 @@ class ValidateBedMesh:
         # Lookup GCode object now
         self.gcode = self.printer.lookup_object('gcode')
 
-        self.printer.register_event_handler("klippy:connect",
-                                            self._handle_connect)
+        self.printer.register_event_handler("klippy:ready",
+                                            self._handle_ready)
         
         # Register command
         self.gcode.register_command(
@@ -47,7 +47,7 @@ class ValidateBedMesh:
             desc="Probe 5 points on the bed mesh and check deviation"
         )
     
-    def _handle_connect(self):
+    def _handle_ready(self):
         # Only now lookup bed_mesh — safe after initialization
         self.bed_mesh = self.printer.lookup_object("bed_mesh", None)
         if self.bed_mesh is None:
