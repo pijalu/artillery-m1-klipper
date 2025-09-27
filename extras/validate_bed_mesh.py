@@ -68,8 +68,7 @@ class ValidateBedMesh:
         self.gcode = self.printer.lookup_object('gcode')
         
         self.lift_speed = self.probe.get_probe_params()['lift_speed']
-        self.probe_x_offset, self.probe_y_offset, self.probe_z_offset = \
-            self.probe.get_offsets()
+
 
     def get_status(self, eventtime):
         # Required so macros can query results
@@ -92,6 +91,8 @@ class ValidateBedMesh:
             toolhead.dwell(0.05)
 
     def _validate_at(self, x, y, gcmd):
+        probe_z_offset = self.probe.get_offsets()[2]
+
         # Interpolate Z from mesh
         z = self.bed_mesh.z_mesh.calc_z(x, y)
         self.mesh_z = z
@@ -107,7 +108,7 @@ class ValidateBedMesh:
         z = probe_session.pull_probed_results()[0][2] # only z
         probe_session.end_probe_session()
 
-        self.probed_z = z - self.probe_z_offset # adjust for probe offset
+        self.probed_z = z - probe_z_offset # adjust for probe offset
         self.deviation = self.probed_z - self.mesh_z
 
     
