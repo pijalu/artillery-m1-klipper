@@ -8,7 +8,7 @@ Copy the configuration files to your printer configuration
 # Slicer update
 ## Printer start code
 ```
-SLICER_START_PRINT BED_TEMPERATURE_INITIAL_LAYER_SINGLE=[bed_temperature_initial_layer_single] CHAMBER_TEMPERATURE={chamber_temperature[0]} FIRST_LAYER_TEMPERATURE_EXTRUDER={first_layer_temperature[initial_extruder]} INITIAL_EXTRUDER=[initial_extruder] FIRST_LAYER_PRINT_MIN_0={first_layer_print_min[0]} FIRST_LAYER_PRINT_MIN_1={first_layer_print_min[1]} X_P_MIN={adaptive_bed_mesh_min[0]}Y_P_MIN={adaptive_bed_mesh_min[1]} X_P_MAX={adaptive_bed_mesh_max[0]} Y_P_MAX={adaptive_bed_mesh_max[1]}
+_SLICER_START_PRINT BED_TEMPERATURE_INITIAL_LAYER_SINGLE=[bed_temperature_initial_layer_single] CHAMBER_TEMPERATURE={chamber_temperature[0]} FIRST_LAYER_TEMPERATURE_EXTRUDER={first_layer_temperature[initial_extruder]} INITIAL_EXTRUDER=[initial_extruder] FIRST_LAYER_PRINT_MIN_0={first_layer_print_min[0]} FIRST_LAYER_PRINT_MIN_1={first_layer_print_min[1]} X_P_MIN={adaptive_bed_mesh_min[0]}Y_P_MIN={adaptive_bed_mesh_min[1]} X_P_MAX={adaptive_bed_mesh_max[0]} Y_P_MAX={adaptive_bed_mesh_max[1]}
 ```
 Or
 ```
