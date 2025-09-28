@@ -2,15 +2,12 @@
 ## Overview
 This repository contains a set of community‑developed configuration files for the Artillery M1 Pro printer. The goal is to provide community optimized setup that you can use to overcome Artillery limitation, tweak as needed, and keep in sync with your machine’s firmware.
 
-
 ## Structure
 * factory/ – the factory default Klipper configuration (Should be a copy of the official config used by factory reset).
 
 * config/ – the running configuration file that includes custom parameters, macros, and common G‑code snippets.
 
 sync.sh – a small helper script to pull the latest firmware / settings from your remote printer IP address.
-deploy.sh – a script to deploy configuration files to your printer directory.
-download_release.sh – a script to download the latest release (nightly/testing/stable) from GitHub.
 
 ## Branches
 - artillery: contains Artillery provided configuration
@@ -19,18 +16,11 @@ download_release.sh – a script to download the latest release (nightly/testing
 ## Tags
 - artillery-xx.xx.xx.xx: tags Artillery provided configuration linked to firmware
 
-## Downloading Releases
-You can download the latest releases using the `download_release.sh` script:
-```bash
-# Download the latest nightly release
-./download_release.sh nightly
+## Installation notes
+See INSTALL.md for installation notes
 
-# Download the latest testing release
-./download_release.sh testing
-
-# Download the latest stable release
-./download_release.sh stable
-```
+## Slicer configuration
+See https://github.com/pijalu/artillery-m1-orca/ for Orca associated configuration
 
 ## Disclaimer 
 The files are community configurations: they come from the open‑source community, do not come with any guaranteed support, but have been tested on the Artillery M1 Pro and should work as-is after a quick sanity check.

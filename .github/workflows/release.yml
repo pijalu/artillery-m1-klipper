@@ -19,10 +19,10 @@ jobs:
         id: release-type
         run: |
           branch_name=${GITHUB_REF#refs/heads/}
-          if [[ $branch_name == "release/stable"* ]]; then
-            echo "type=stable" >> $GITHUB_OUTPUT
-          elif [[ $branch_name == "release/testing"* ]]; then
-            echo "type=testing" >> $GITHUB_OUTPUT
+          # Extract everything after 'release/'
+          if [[ $branch_name =~ ^release/(.+)$ ]]; then
+            type=${BASH_REMATCH[1]}
+            echo "type=$type" >> $GITHUB_OUTPUT
           else
             echo "type=nightly" >> $GITHUB_OUTPUT
           fi
@@ -35,8 +35,8 @@ jobs:
         run: |
           mkdir -p release
           cp -r config release/ 2>/dev/null || true
-          cp deploy.sh release/
-          echo "${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}" > release/config/.version
+          cp -r extras release/ 2>/dev/null || true
+          echo "${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}" > release/version
           zip -r release-${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}.zip release/
 
       - name: Create Release
@@ -48,7 +48,7 @@ jobs:
           tag_name: ${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}
           release_name: Release ${{ steps.release-type.outputs.type }}-${{ steps.timestamp.outputs.time }}
           draft: false
-          prerelease: ${{ steps.release-type.outputs.type != 'stable' }}
+          prerelease: ${{ !startsWith(steps.release-type.outputs.type, 'stable') }}
           
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
