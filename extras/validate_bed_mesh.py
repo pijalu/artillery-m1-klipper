@@ -22,7 +22,6 @@ class ValidateBedMesh:
         self.deviation = 0.0
         
         self.gcode = None
-        self.gcode_move = None
 
         self.speed = config.getfloat('speed', 50., above=0.)
         self.horizontal_move_z = config.getfloat('horizontal_move_z', 3.)
@@ -68,7 +67,6 @@ class ValidateBedMesh:
             self.mcu_probe = self.probe.mcu_probe
 
         self.gcode = self.printer.lookup_object('gcode')
-        self.gcode_move = self.printer.lookup_object('gcode_move')
         self.lift_speed = self.probe.get_probe_params()['lift_speed']
 
 
@@ -93,9 +91,8 @@ class ValidateBedMesh:
             toolhead.dwell(0.05)
 
     def _validate_at(self, x, y, gcmd):
-        gcode_move_offset = self.gcode_move.get_status()['homing_origin'].z
+        # gcode_move_offset = self.gcode_move.get_status()['homing_origin'].z
         probe_z_offset = self.probe.get_offsets()[2]
-        calibration = probe_z_offset - gcode_move_offset
         
         # Report offsets (debug)
         #gcmd.respond_info(f"gcode move offset: {gcode_move_offset:.2f}")
@@ -103,7 +100,7 @@ class ValidateBedMesh:
         #gcmd.respond_info(f"calibration: {calibration:.2f}")
 
         # Interpolate Z from mesh
-        z = self.bed_mesh.z_mesh.calc_z(x, y)
+        z = self.bed_mesh.get_mesh().calc_z(x, y)
         self.mesh_z = z
 
         ## Go probe the point to validate
@@ -117,9 +114,8 @@ class ValidateBedMesh:
         z = probe_session.pull_probed_results()[0][2] # only z
         probe_session.end_probe_session()
 
-        self.probed_z = z - calibration # adjust for possible offset
+        self.probed_z = z - probe_z_offset # adjust for possible offset
         self.deviation = self.probed_z - self.mesh_z
-
     
     def cmd_VALIDATE_BED_MESH_AT(self, gcmd):
         x = gcmd.get_float("X")
