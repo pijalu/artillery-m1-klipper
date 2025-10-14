@@ -3,10 +3,22 @@
 # Copyright (C) 2025 Pierre Poissinger <pierre.poissinger@gmail.com>
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
+# Configuration parameters:
+#  [validate_bed_mesh]
+#   speed: Speed for XY moves when probing (default 50 mm/s)
+#   horizontal_move_z: Z height for horizontal moves (default 3 mm)
+#   deviation: Maximum allowed deviation in mm (default 0.05 mm)
+#   remesh: Whether to remesh if deviation exceeded (default True)
 #
 # VALIDATE_BED_MESH 
-#   Probe 4 bed corner + center against loaded bed mesh - if deviation exceeds MAX_DEVIATION, remesh
-#   Optionally save config if remeshing
+#   Probe 4 (bed) corner + center against loaded bed mesh - if deviation exceeds MAX_DEVIATION, remesh
+#   Parameters:
+#    MAX_DEVIATION=<mm> : maximum allowed deviation (default from config)
+#    SAVE_CONFIG=TRUE/FALSE : whether to save config if remeshing (default
+#                            FALSE)
+#    REMESH=TRUE/FALSE : whether to remesh if deviation exceeded (default from config)
+#    MESH_MIN=<x,y> : override mesh min point (default from bed_mesh config)
+#    MESH_MAX=<x,y> : override mesh max point (default from bed_mesh config)
 #
 #  VALIDATE_BED_MESH_AT X=<x> Y=<y>
 #   Get interpolated Z from bed mesh at XY, probe the point and report deviation
@@ -19,12 +31,13 @@ class ValidateBedMesh:
         self.printer = config.get_printer()
         self.mesh_z = 0.0
         self.probed_z = 0.0
-        self.deviation = 0.0
         
         self.gcode = None
 
         self.speed = config.getfloat('speed', 50., above=0.)
         self.horizontal_move_z = config.getfloat('horizontal_move_z', 3.)
+        self.deviation = config.getfloat('deviation', 0.05)
+        self.remesh = config.getboolean('remesh', True)
         
         self.probe = None
         self.mcu_probe = None
@@ -116,6 +129,14 @@ class ValidateBedMesh:
 
         self.probed_z = z - probe_z_offset # adjust for possible offset
         self.deviation = self.probed_z - self.mesh_z
+
+    # retreive commma separated coordinate from a g-code command
+    def parse_gcmd_coord(self, gcmd, name):
+        try:
+            v1, v2 = [float(v.strip()) for v in gcmd.get(name).split(',')]
+        except:
+            raise gcmd.error("Unable to parse parameter '%s'" % (name,))
+        return v1, v2
     
     def cmd_VALIDATE_BED_MESH_AT(self, gcmd):
         x = gcmd.get_float("X")
@@ -127,15 +148,33 @@ class ValidateBedMesh:
         gcmd.respond_info(f"Deviation = {self.deviation:.4f}mm")
 
     def cmd_VALIDATE_BED_MESH(self, gcmd):
-        maxdeviation = gcmd.get_float("MAX_DEVIATION", 0.05)
-        save_config = gcmd.get("SAVE_CONFIG", "FALSE").upper() == "TRUE"
-        remesh = False
+        remesh_needed = False
         min_x, min_y = self.bed_mesh.status['mesh_min']
         max_x, max_y = self.bed_mesh.status['mesh_max']
 
+        maxdeviation = gcmd.get_float("MAX_DEVIATION", self.deviation, above=0.)
+        save_config = gcmd.get("SAVE_CONFIG", "FALSE").upper() == "TRUE"
+
+        params = gcmd.get_command_parameters()
+        if "REMESH" in params:
+            do_remesh = gcmd.get("REMESH", "FALSE").upper() == "TRUE"
+        else:
+            do_remesh = self.remesh
+        
+        # Allow override of mesh min/max
+        if "MESH_MIN" in params:
+            min_x, min_y = self.parse_gcmd_coord(gcmd, "MESH_MIN")
+        if "MESH_MAX" in params:
+            max_x, max_y = self.parse_gcmd_coord(gcmd, "MESH_MAX")
+        
+        # calc center
+        mid_x = min_x + (max_x - min_x)/2
+        mid_y = min_y + (max_y - min_y)/2
+
+        # Calculate 5 positions to validate: 4 corners + center
         positions = [(min_x, min_y), 
                      (min_x, max_y),
-                     (max_x/2, max_y/2), 
+                     (mid_x, mid_y), 
                      (max_x, min_y), 
                      (max_x, max_y)]
         
@@ -143,21 +182,27 @@ class ValidateBedMesh:
             x, y = pos
             self._validate_at(x, y, gcmd)
             gcmd.respond_info(f"VALIDATE MESH {x:.2f}, {y:.2f} Deviation = {self.deviation:.4f}mm")
-            if abs(self.deviation) > maxdeviation:
-                remesh = True
+            # Deviation exceeded maxdeviation and we have to remesh: Stop now to save time - other points don't matter
+            if abs(self.deviation) > maxdeviation and do_remesh:
+                remesh_needed = True
                 break
 
         # Move back to horizontal move height
         self._move_helper((None, None, self.horizontal_move_z))
 
-        if remesh:
+        # Remesh needed - either remesh or just report
+        if remesh_needed:
             gcmd.respond_info(f"VALIDATE MESH: Deviation exceeded {maxdeviation:.4f}mm, remeshing recommended")   
-            self.gcode.run_script_from_command("BED_MESH_CALIBRATE")
-            if save_config:
-                self.gcode.run_script_from_command("SAVE_CONFIG")
+            # Remesh with default bed_mesh settings
+            if do_remesh:
+                self.gcode.run_script_from_command("BED_MESH_CALIBRATE")
+                if save_config:
+                    self.gcode.run_script_from_command("SAVE_CONFIG")
+            else:
+                gcmd.respond_info("VALIDATE MESH: Remeshing skipped")
         else:
             # Move back to center
-            self._move_helper((max_x/2, max_y/2, None))
+            self._move_helper((mid_x, mid_y, None))
             gcmd.respond_info(f"VALIDATE MESH: All points within {maxdeviation:.4f}mm deviation")
   
 
