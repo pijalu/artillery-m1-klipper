@@ -31,12 +31,13 @@ class ValidateBedMesh:
         self.printer = config.get_printer()
         self.mesh_z = 0.0
         self.probed_z = 0.0
+        self.deviation = 0.0
         
         self.gcode = None
 
         self.speed = config.getfloat('speed', 50., above=0.)
         self.horizontal_move_z = config.getfloat('horizontal_move_z', 3.)
-        self.deviation = config.getfloat('deviation', 0.05)
+        self.maxdeviation = config.getfloat('deviation', 0.05)
         self.remesh = config.getboolean('remesh', True)
         
         self.probe = None
@@ -152,7 +153,7 @@ class ValidateBedMesh:
         min_x, min_y = self.bed_mesh.status['mesh_min']
         max_x, max_y = self.bed_mesh.status['mesh_max']
 
-        maxdeviation = gcmd.get_float("MAX_DEVIATION", self.deviation, above=0.)
+        maxdeviation = gcmd.get_float("MAX_DEVIATION", self.maxdeviation, above=0.)
         save_config = gcmd.get("SAVE_CONFIG", "FALSE").upper() == "TRUE"
 
         params = gcmd.get_command_parameters()
