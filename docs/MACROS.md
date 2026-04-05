@@ -12,7 +12,7 @@ Use these identifiers to track printer state in dashboards or logging tools.
 | `HEAT_BED`         | Bed heating                        | `SLICER_START_PRINT`, `_heat_chamber`, `MANUAL_LEVEL` | slicer-macro.cfg, diy_start_print.cfg |
 | `HOMING`           | G28 homing cycle                   | `SLICER_START_PRINT`, `MANUAL_LEVEL` | slicer-macro.cfg, diy_start_print.cfg |
 | `HOMING_PREPRINT`  | Pre-print homing                   | `SLICER_START_PRINT`    | slicer-macro.cfg     |
-| `NOZZLE_CLEAN`     | Nozzle cleaning cycle              | `_nozzle_clean`, `MANUAL_LEVEL` | diy_start_print.cfg |
+| `NOZZLE_CLEAN`     | Nozzle cleaning cycle              | `nozzle_clean`, `MANUAL_LEVEL` | diy_start_print.cfg |
 | `MESH`             | Adaptive bed mesh calibration      | `SLICER_START_PRINT`, `MANUAL_LEVEL` | slicer-macro.cfg, diy_start_print.cfg |
 | `MESH_VALIDATE`    | Bed mesh validation                | `SLICER_START_PRINT`    | slicer-macro.cfg     |
 | `SHAPER`           | Input shaper calibration           | `SLICER_START_PRINT`    | slicer-macro.cfg     |
@@ -21,8 +21,8 @@ Use these identifiers to track printer state in dashboards or logging tools.
 | `READY`            | Print start complete               | `SLICER_START_PRINT`    | slicer-macro.cfg     |
 | `LEVEL`            | Manual bed leveling started        | `MANUAL_LEVEL`          | diy_start_print.cfg  |
 | `LEVEL_DONE`       | Manual bed leveling complete       | `MANUAL_LEVEL`          | diy_start_print.cfg  |
-| `FILAMENT_UNLOAD`  | Filament unload started            | `_unload_filament`      | diy_start_print.cfg  |
-| `FILAMENT_LOAD`    | Filament load started              | `_load_filament`        | diy_start_print.cfg  |
+| `FILAMENT_UNLOAD`  | Filament unload started            | `unload_filament`      | diy_start_print.cfg  |
+| `FILAMENT_LOAD`    | Filament load started              | `load_filament`        | diy_start_print.cfg  |
 | `PAUSE`            | Print paused                       | `PAUSE`                 | manual_change.cfg    |
 | `RESUME`           | Print resumed                      | `RESUME`                | manual_change.cfg    |
 | `CANCEL`           | Print cancelled                    | `CANCEL_PRINT`          | manual_change.cfg    |
@@ -81,7 +81,7 @@ Heats the chamber to the target temperature. Uses PTC and chamber fans. Waits fo
 
 **Parameters:** `CHAMBER_TEMP` (int)
 
-### `_nozzle_clean`
+### `nozzle_clean`
 Full nozzle cleaning cycle: heat, extrude, scrape at discharge port, brush, seal, and cool.
 
 **Parameters:** `TEMP` (int, default 230) — peak cleaning temperature
@@ -100,12 +100,12 @@ Triggers adaptive bed leveling with heating. Heats bed to the given temperature 
 | `BED_TEMP`  | float | heater_bed.target | Bed temperature for leveling |
 | `NOZZLE_TEMP`| int  | 140            | Nozzle temperature for cleaning  |
 
-### `_unload_filament`
+### `unload_filament`
 Moves to collection box, retracts filament. Requires extruder temperature.
 
 **Parameters:** `TEMP` (int, required) — nozzle temperature
 
-### `_load_filament`
+### `load_filament`
 Moves to collection box, loads filament with purge. Requires extruder temperature.
 
 **Parameters:** `TEMP` (int, required) — nozzle temperature
